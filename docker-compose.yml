@@ -1,0 +1,24 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+
+  collector:
+    build: ./collector
+
+  ingestor:
+    build: ./ingestor
+
+  ml:
+    build: ./ml
+
+  alerting:
+    build: ./alerting
+
+  api:
+    build: ./api
+
+  frontend:
+    build: ./frontend
