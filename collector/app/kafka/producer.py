@@ -1,14 +1,27 @@
+import json
 from kafka import KafkaProducer
 
-producer = KafkaProducer(
-    bootstrap_servers=[
-        "kafka:9092"
-    ]
-)
+class FlowProducer:
 
-def send(json_bytes):
-    """Sends the flow record to Kafka"""
-    producer.send(
-        "flows.raw",
-        json_bytes
-    )
+    def __init__(
+        self,
+        brokers: list[str],
+        topic: str
+    ):
+        self.topic = topic
+
+        self.producer = KafkaProducer(
+            bootstrap_servers=brokers,
+            value_serializer=lambda x: json.dumps(x).encode()
+        )
+
+    def publish(self, flow: dict):
+
+        self.producer.send(
+            self.topic,
+            flow
+        )
+
+    def flush(self):
+
+        self.producer.flush()

@@ -2,7 +2,12 @@ import socket
 from parser.netflow_v5 import parse_netflow_v5_packet
 from parser.record import FlowRecord
 from datetime import datetime, UTC
-from kafka.producer import send
+from kafka.producer import FlowProducer
+
+producer = FlowProducer(
+    brokers=["kafka:9092"],
+    topic="flows.raw"
+)
 
 def collector_v5(collector_ip = "0.0.0.0", port = 2055, max_buffer = 65535):
     sock = socket.socket(
@@ -43,5 +48,7 @@ def collector_v5(collector_ip = "0.0.0.0", port = 2055, max_buffer = 65535):
                 "last_seen": record.last_seen
             }
 
-            send(json_bytes)
+            producer.publish(
+                json_bytes
+            )
 
