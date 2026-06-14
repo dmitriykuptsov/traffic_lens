@@ -23,5 +23,5 @@ class FlowProducer:
         )
 
     def flush(self):
-
+        
         self.producer.flush()
