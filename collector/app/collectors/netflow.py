@@ -41,6 +41,7 @@ def collector_v5(collector_ip = "0.0.0.0", port = 2055, max_buffer = 65535):
                 "protocol": record.protocol,
                 "bytes": record.bytes,
                 "packets": record.packets,
+                "tcp_flags": record.tcp_flags,
                 "device_ip": record.exporter_ip,
                 "input_if": record.input_if,
                 "output_if": record.output_if,
