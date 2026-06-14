@@ -19,6 +19,13 @@ FLOW_RECORD_FMT = (
 )
 
 FLOW_RECORD_SIZE = 48
+FLOW_HEADER_SIZE = 24
+
+def parse_v5_header(data: bytes):
+    return struct.unpack(
+        "!HHIIIIBBH",
+        data[:FLOW_HEADER_SIZE]
+    )
 
 def parse_flow_record(
     record_bytes: bytes,
@@ -95,3 +102,47 @@ def parse_flow_record(
         first_seen=first,
         last_seen=last
     )
+
+def parse_netflow_v5_packet(
+    data: bytes,
+    exporter_ip: str
+):
+
+    (
+        version,
+        count,
+        sys_uptime,
+        unix_secs,
+        unix_nsecs,
+        flow_sequence,
+        engine_type,
+        engine_id,
+        sampling_interval
+    ) = parse_v5_header(data)
+
+    if version != 5:
+        raise ValueError(
+            f"Unexpected version {version}"
+        )
+
+    offset = FLOW_HEADER_SIZE
+
+    flows = []
+
+    for _ in range(count):
+
+        record = data[
+            offset:
+            offset + FLOW_RECORD_SIZE
+        ]
+
+        flow = parse_flow_record(
+            record,
+            exporter_ip
+        )
+
+        flows.append(flow)
+
+        offset += FLOW_RECORD_SIZE
+
+    return flows
