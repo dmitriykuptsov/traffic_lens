@@ -4,13 +4,13 @@ from parser.record import FlowRecord
 from datetime import datetime, UTC
 from kafka.producer import send
 
-def collector_v5(port = 2055, max_buffer = 65535):
+def collector_v5(collector_ip = "0.0.0.0", port = 2055, max_buffer = 65535):
     sock = socket.socket(
         socket.AF_INET,
         socket.SOCK_DGRAM
     )
 
-    sock.bind(("0.0.0.0", port))
+    sock.bind((collector_ip, port))
 
     while True:
         data, addr = sock.recvfrom(max_buffer)
