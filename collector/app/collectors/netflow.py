@@ -1,0 +1,46 @@
+import socket
+from parser.netflow_v5 import parse_flow_record
+from parser.record import FlowRecord
+from datetime import datetime, UTC
+from kafka.producer import send
+
+def collector_v5(port = 2055, max_buffer = 65535):
+    sock = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_DGRAM
+    )
+
+    sock.bind(("0.0.0.0", port))
+
+    while True:
+        data, addr = sock.recvfrom(max_buffer)
+
+        exporter_ip = addr[0]
+
+        record: FlowRecord
+
+        record = parse_flow_record(
+            data,
+            exporter_ip
+        )
+
+        timestamp = datetime.now(UTC).isoformat()
+
+        json_bytes = {
+            "timestamp": timestamp,
+            "src_ip": record.src_ip,
+            "dst_ip": record.dst_ip,
+            "src_port": record.src_port,
+            "dst_port": record.dst_port,
+            "protocol": record.protocol,
+            "bytes": record.bytes,
+            "packets": record.packets,
+            "device_ip": record.exporter_ip,
+            "input_if": record.input_if,
+            "output_if": record.output_if,
+            "first_seen": record.first_seen,
+            "last_seen": record.last_seen
+        }
+
+        send(json_bytes)
+
